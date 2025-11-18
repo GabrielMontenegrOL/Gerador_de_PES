@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de PES</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 50%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1f1f1f 100%);
+        }
+
+        body.dark-mode .container {
+            background: #2d2d2d;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        body.dark-mode h1 {
+            color: #64B5F6;
+        }
+
+        body.dark-mode .separator {
+            background: #404040;
+        }
+
+        body.dark-mode label {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="number"] {
+            background: #1a1a1a;
+            border-color: #404040;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode input:focus {
+            border-color: #64B5F6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.2);
+        }
+
+        body.dark-mode .essenciais-display {
+            background: #1a1a1a;
+            color: #999;
+        }
+
+        body.dark-mode .essenciais-display.selected {
+            color: #64B5F6;
+        }
+
+        body.dark-mode .btn-selecionar {
+            background: #1a1a1a;
+            color: #64B5F6;
+            border-color: #64B5F6;
+        }
+
+        body.dark-mode .btn-selecionar:hover {
+            background: #64B5F6;
+            color: #1a1a1a;
+        }
+
+        body.dark-mode .resultado {
+            background: #1a1a1a;
+            color: #66BB6A;
+        }
+
+        body.dark-mode .rodape {
+            color: #bbb;
+            border-top: 2px solid #64B5F6;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+        }
+
+        body.dark-mode .rodape .dev-info {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .rodape .dev-name {
+            color: #64B5F6;
+        }
+
+        body.dark-mode .rodape a {
+            color: #64B5F6;
+        }
+
+        body.dark-mode .rodape a:hover {
+            color: #7bb3e0;
+        }
+
+        body.dark-mode .rodape .badge {
+            background-color: #64B5F6;
+        }
+
+        body.dark-mode .rodape .profile-photo {
+            border-color: #64B5F6;
+            box-shadow: 0 4px 10px rgba(100, 181, 246, 0.4);
+        }
+
+        body.dark-mode .modal-content {
+            background: #2d2d2d;
+        }
+
+        body.dark-mode .modal-title {
+            color: #64B5F6;
+        }
+
+        body.dark-mode .modal-aviso {
+            background: #3d2f1f;
+            color: #FFB74D;
+        }
+
+        body.dark-mode .checkbox-item {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .checkbox-item:hover {
+            background: #1a1a1a;
+        }
+
+        body.dark-mode .checkbox-item label {
+            color: #e0e0e0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(0,0,0,0.05);
+            transform: rotate(20deg);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            color: #1976D2;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .separator {
+            height: 2px;
+            background: #e0e0e0;
+            margin: 20px 0 30px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #424242;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+
+        .quantidade-preview {
+            color: #FF9800;
+            font-size: 12px;
+            margin-top: 5px;
+            min-height: 18px;
+        }
+
+        .essenciais-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .essenciais-display {
+            flex: 1;
+            color: #757575;
+            font-size: 13px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        .essenciais-display.selected {
+            color: #1976D2;
+        }
+
+        .btn-selecionar {
+            background: #E3F2FD;
+            color: #1976D2;
+            border: 1px solid #1976D2;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-selecionar:hover {
+            background: #1976D2;
+            color: white;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-gerar {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-gerar:hover {
+            background: #45A049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-limpar {
+            background: #FF5722;
+            color: white;
+        }
+
+        .btn-limpar:hover {
+            background: #E64A19;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .resultado {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            min-height: 60px;
+            color: #2E7D32;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: pre-line;
+            word-wrap: break-word;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            color: #4CAF50;
+            font-size: 14px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .rodape {
+            margin-top: 30px;
+            font-size: 15px;
+            color: #444;
+            text-align: center;
+            padding: 20px;
+            border-top: 2px solid #1976D2;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .rodape .dev-info {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .rodape .profile-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 15px auto 10px;
+            display: block;
+            border: 3px solid #1976D2;
+            box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .rodape .profile-photo:hover {
+            transform: scale(1.1);
+        }
+
+        .rodape .dev-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1976D2;
+            margin: 5px 0;
+        }
+
+        .rodape a {
+            color: #1976D2;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+
+        .rodape a:hover {
+            text-decoration: underline;
+            color: #0d47a1;
+        }
+
+        .rodape .badges {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .rodape .badge {
+            background-color: #1976D2;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 350px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            color: #1976D2;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .modal-aviso {
+            background: #FFF3E0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #FF5722;
+            font-size: 13px;
+        }
+
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .checkbox-item:hover {
+            background: #f5f5f5;
+        }
+
+        .checkbox-item input {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            flex: initial;
+            padding: 10px 30px;
+        }
+
+        .btn-ok {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-cancelar {
+            background: #757575;
+            color: white;
+        }
+
+        datalist {
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+            <span id="themeIcon">🌙</span>
+        </button>
+        
+        <h1>📁 GERADOR DE PES</h1>
+        <div class="separator"></div>
+
+        <div class="form-group">
+            <label for="numero">PES:</label>
+            <input type="text" id="numero" placeholder="Digite o número do PES">
+        </div>
+
+        <div class="form-group">
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" list="cidades" placeholder="Digite a cidade">
+            <datalist id="cidades"></datalist>
+        </div>
+
+        <div class="form-group">
+            <label for="data">Data:</label>
+            <input type="text" id="data" placeholder="DD-MM ou DDMM" maxlength="5">
+        </div>
+
+        <div class="form-group">
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" id="quantidade" placeholder="Digite a quantidade" min="0">
+            <div class="quantidade-preview" id="quantidadePreview"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Essenciais:</label>
+            <div class="essenciais-container">
+                <div class="essenciais-display" id="essenciaisDisplay">Nenhum selecionado</div>
+                <button class="btn-selecionar" onclick="abrirModal()">🔧 Selecionar</button>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-gerar" onclick="gerar()">🚀 Gerar PES</button>
+            <button class="btn-limpar" onclick="limpar()">🗑️ Limpar</button>
+        </div>
+
+        <div class="resultado" id="resultado"></div>
+        <div class="status" id="status"></div>
+
+        <div class="rodape">
+            <div class="dev-info">💻 Desenvolvido por</div>
+            <img src="https://avatars.githubusercontent.com/u/131418339?v=4" alt="Gabriel Montenegro" class="profile-photo">
+            <div class="dev-name">Gabriel Montenegro</div>
+            <div>
+                <a href="https://www.linkedin.com/in/gabriel-montenegro7/" target="_blank" rel="noopener noreferrer">🔗 LinkedIn</a>
+            </div>
+            <div class="badges">
+                <span class="badge">Desenvolvedor</span>
+                <span class="badge">2025</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-title">Selecione os Essenciais:</div>
+            <div class="modal-aviso">⚠️ Cada essencial selecionado reduzirá<br>a quantidade total em 1 unidade</div>
+            <div class="checkbox-group" id="checkboxGroup"></div>
+            <div class="modal-buttons">
+                <button class="btn-ok" onclick="confirmarEssenciais()">OK</button>
+                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cidades = ["Água Branca", "Aguiar", "Alagoa Grande", "Alagoa Nova", "Alagoinha", "Alcantil", "Algodão de Jandaíra", "Alhandra", "Amparo", "Aparecida", "AraCagi", "Arara", "Araruna", "Areia", "Areia de Baraúnas", "Areial", "Aroeiras", "AssunCão", "Baía da TraiCão", "Bananeiras", "Baraúna", "Barra de Santana", "Barra de Santa Rosa", "Barra de SAO Miguel", "Bayeux", "Belém", "Belém do Brejo do Cruz", "Bernardino Batista", "Boa Ventura", "Boa Vista", "Bom Jesus", "Bom Sucesso", "Bonito de Santa Fé", "Boqueirão", "Borborema", "Brejo do Cruz", "Brejo dos Santos", "Caaporã", "Cabaceiras", "Cabedelo", "Cachoeira dos Índios", "Cacimba de Areia", "Cacimba de Dentro", "Cacimbas", "Caicó", "Cajazeiras", "Cajazeirinhas", "Caldas Brandão", "Camalaú", "Campina Grande", "Capim", "Caraúbas", "Carrapateira", "Casserengue", "Catingueira", "Catolé do Rocha", "Caturité", "Conceicão", "Condado", "Conde", "Congo", "Coremas", "Coxixola", "Cruz do Espírito Santo", "Cubati", "Cuité", "Cuitegi", "Cuité de Mamanguape", "Curral de Cima", "Curral Velho", "Damião", "Desterro", "Diamante", "Dona Inês", "Duas Estradas", "Emas", "Esperanca", "Fagundes", "Frei Martinho", "Gado Bravo", "Guarabira", "Gurinhém", "Gurjão", "Ibiara", "Igaracy", "Imaculada", "Ingá", "Itabaiana", "Itaporanga", "Itapororoca", "Itatuba", "Jacaraú", "Jericó", "João Pessoa", "Juarez Távora", "Juazeirinho", "Junco do Seridó", "Juripiranga", "Juru", "Lagoa", "Lagoa de Dentro", "Lagoa Seca", "Lastro", "Livramento", "Logradouro", "Lucena", "Mãe d'Água", "Malta", "Mamanguape", "Manaíra", "MarcaCão", "Mari", "Marizópolis", "Massaranduba", "Mataraca", "Matinhas", "Mato Grosso", "Maturéia", "Mogeiro", "Montadas", "Monte Horebe", "Monteiro", "Mulungu", "Natuba", "Nazarezinho", "Nova Floresta", "Nova Olinda", "Nova Palmeira", "Olho d'Água", "Olivedos", "Ouro Velho", "Parari", "Passagem", "Patos", "Paulista", "Pedra Branca", "Pedra Lavrada", "Pedras de Fogo", "Pedro Régis", "Piancó", "Picuí", "Pilar", "Pilões", "Pilõezinhos", "Pirpirituba", "Pitimbu", "Pocinhos", "Poco Dantas", "Poco de José de Moura", "Pombal", "Prata", "Princesa Isabel", "Puxinanã", "Queimadas", "Quixabá", "Remígio", "Riachão", "Riachão do Bacamarte", "Riachão do Poco", "Riacho de Santo Antônio", "Riacho dos Cavalos", "Rio Tinto", "Salgadinho", "Salgado de São Félix", "Santa Rita", "Santa Cecília", "Santa Cruz", "Santa Helena", "Santa Inês", "Santa Luzia", "Santa Teresinha", "Santana de Mangueira", "Santana dos Garrotes", "Santarém", "Santo André", "São Bentinho", "SAO Bento", "São Domingos de Pombal", "São Domingos do Cariri", "SAO Francisco", "São João do Cariri", "São João do Rio do Peixe", "SAO João do Tigre", "São José da Lagoa Tapada", "São José de Caiana", "sao José de Espinharas", "São José de Piranhas", "São José de Princesa", "sao José do Bonfim", "São José do Brejo do Cruz", "São José do Sabugi", "sao José dos Cordeiros", "São José dos Ramos", "São Mamede", "sao Miguel de Taipu", "São Sebastião de Lagoa de Roca", "sao Sebastião do Umbuzeiro", "Sapé", "Serra Branca", "Serra da Raiz", "Serra Grande", "Serra Redonda", "Serraria", "Sertãozinho", "Sobrado", "Solânea", "Soledade", "Sossêgo", "Sousa", "Sumé", "Taperoá", "Tavares", "Teixeira", "Tenório", "Triunfo", "Uiraúna", "Umbuzeiro", "Vieirópolis", "Vista Serrana", "Zabelê"];
+
+        const essenciais = ["CAGEPA", "CLARO", "TIM", "VIVO", "ENERGISA", "ANE"];
+        let essenciaisSelecionados = {};
+
+        // Verificar tema salvo
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeIcon').textContent = '☀️';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Preencher datalist de cidades
+        const datalist = document.getElementById('cidades');
+        cidades.forEach(cidade => {
+            const option = document.createElement('option');
+            option.value = cidade;
+            datalist.appendChild(option);
+        });
+
+        // Criar checkboxes de essenciais
+        const checkboxGroup = document.getElementById('checkboxGroup');
+        essenciais.forEach(essencial => {
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = essencial;
+            checkbox.value = essencial;
+            
+            const label = document.createElement('label');
+            label.htmlFor = essencial;
+            label.textContent = essencial;
+            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            checkboxGroup.appendChild(div);
+        });
+
+        function abrirModal() {
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function fecharModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function confirmarEssenciais() {
+            essenciaisSelecionados = {};
+            essenciais.forEach(essencial => {
+                const checkbox = document.getElementById(essencial);
+                if (checkbox.checked) {
+                    essenciaisSelecionados[essencial] = true;
+                }
+            });
+            atualizarDisplayEssenciais();
+            fecharModal();
+        }
+
+        function atualizarDisplayEssenciais() {
+            const display = document.getElementById('essenciaisDisplay');
+            const selecionados = Object.keys(essenciaisSelecionados);
+            
+            if (selecionados.length > 0) {
+                let texto = selecionados.join(', ');
+                if (texto.length > 30) {
+                    texto = texto.substring(0, 27) + '...';
+                }
+                display.textContent = `${texto} (${selecionados.length} selecionados)`;
+                display.classList.add('selected');
+            } else {
+                display.textContent = 'Nenhum selecionado';
+                display.classList.remove('selected');
+            }
+            
+            atualizarPreviewQuantidade();
+        }
+
+        function atualizarPreviewQuantidade() {
+            const quantidade = parseInt(document.getElementById('quantidade').value) || 0;
+            const numEssenciais = Object.keys(essenciaisSelecionados).length;
+            const preview = document.getElementById('quantidadePreview');
+            
+            if (quantidade > 0 && numEssenciais > 0) {
+                const quantidadeAjustada = Math.max(0, quantidade - numEssenciais);
+                if (quantidadeAjustada !== quantidade) {
+                    preview.textContent = `(Quantidade ajustada: ${quantidadeAjustada})`;
+                } else {
+                    preview.textContent = '';
+                }
+            } else {
+                preview.textContent = '';
+            }
+        }
+
+        document.getElementById('quantidade').addEventListener('input', atualizarPreviewQuantidade);
+
+        function limparEspacos(texto) {
+            return texto.trim().replace(/\s+/g, ' ');
+        }
+
+        function parseData(dataStr) {
+            dataStr = dataStr.replace('-', '');
+            if (dataStr.length === 4 && /^\d+$/.test(dataStr)) {
+                const dia = dataStr.substring(0, 2);
+                const mes = dataStr.substring(2, 4);
+                return `${dia}-${mes}`;
+            }
+            return null;
+        }
+
+        function gerar() {
+            const numero = document.getElementById('numero').value.trim();
+            const cidade = document.getElementById('cidade').value.trim();
+            const dataStr = document.getElementById('data').value.trim();
+            const quantidadeStr = document.getElementById('quantidade').value.trim();
+            
+            if (!numero || !cidade || !dataStr || !quantidadeStr) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            const dataFormatada = parseData(dataStr);
+            if (!dataFormatada) {
+                alert('Data no formato errado! Use DD-MM ou DDMM');
+                return;
+            }
+            
+            const selecionados = Object.keys(essenciaisSelecionados);
+            const numEssenciais = selecionados.length;
+            const quantidadeOriginal = parseInt(quantidadeStr);
+            const quantidadeAjustada = Math.max(0, quantidadeOriginal - numEssenciais);
+            
+            if (quantidadeOriginal < numEssenciais) {
+                alert(`A quantidade original (${quantidadeOriginal}) é menor que o número de essenciais selecionados (${numEssenciais}).\nA quantidade será ajustada para ${quantidadeAjustada}.`);
+            }
+            
+            const cidadeLimpa = limparEspacos(cidade).toUpperCase();
+            const nomeOriginal = `PES ${numero} ${cidadeLimpa} ${dataFormatada}${quantidadeAjustada > 0 ? ` (${quantidadeAjustada})` : ''}`;
+            const nomeSemQuantidade = `PES ${numero} ${cidadeLimpa} ${dataFormatada}`;
+            
+            let textoFinal = nomeOriginal;
+            if (selecionados.length > 0) {
+                selecionados.forEach(essencial => {
+                    textoFinal += `\n\t${essencial} ${nomeSemQuantidade}`;
+                });
+            }
+            
+            // Copiar para clipboard
+            navigator.clipboard.writeText(textoFinal).then(() => {
+                document.getElementById('resultado').textContent = textoFinal;
+                const status = document.getElementById('status');
+                
+                if (numEssenciais > 0) {
+                    status.textContent = `✓ Copiado! Quantidade ajustada: ${quantidadeOriginal} → ${quantidadeAjustada}`;
+                } else {
+                    status.textContent = '✓ Copiado para área de transferência!';
+                }
+                
+                setTimeout(() => {
+                    status.textContent = '';
+                }, 4000);
+            }).catch(() => {
+                document.getElementById('resultado').textContent = textoFinal;
+                document.getElementById('status').textContent = '✓ Gerado! (Copie manualmente)';
+            });
+        }
+
+        function limpar() {
+            document.getElementById('numero').value = '';
+            document.getElementById('cidade').value = '';
+            document.getElementById('data').value = '';
+            document.getElementById('quantidade').value = '';
+            document.getElementById('resultado').textContent = '';
+            document.getElementById('status').textContent = '';
+            document.getElementById('quantidadePreview').textContent = '';
+            
+            essenciaisSelecionados = {};
+            essenciais.forEach(essencial => {
+                document.getElementById(essencial).checked = false;
+            });
+            atualizarDisplayEssenciais();
+            
+            document.getElementById('numero').focus();
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModal();
+            }
+        });
+
+        // Atalhos de teclado
+        document.getElementById('numero').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('cidade').focus();
+        });
+
+        document.getElementById('cidade').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('data').focus();
+        });
+
+        document.getElementById('data').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('quantidade').focus();
+        });
+
+        document.getElementById('quantidade').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') gerar();
+        });
+
+        // Formatação automática da data
+        document.getElementById('data').addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, ''); // Remove não-dígitos
+            
+            if (valor.length >= 2) {
+                valor = valor.substring(0, 2) + '-' + valor.substring(2, 4);
+            }
+            
+            e.target.value = valor;
+        });
+
+        // Focar no primeiro campo ao carregar
+        window.addEventListener('load', () => {
+            document.getElementById('numero').focus();
+        });
+    </script>
+</body>
+</html>
